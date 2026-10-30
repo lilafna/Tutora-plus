@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tutora + | Réussir, près de chez vous</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0A6B46"><meta name="color-scheme" content="light"><link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@500;600;700;800&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  /* Palette blanc et vert */
+  --green:#0A6B46;--green-deep:#07513A;--green-ink:#0E2A1F;--mint:#DDF1E6;--mint-line:#BFE3CF;--leaf:#2FA36B;
+  --paper:#FFFFFF;--wash:#F2F7F4;--card:#FFFFFF;--ink:#0E2A1F;--soft:#4F665B;--line:#DCE7E0;
+  --warn-bg:#FFF4D6;--warn:#7A5300;--bad-bg:#FDE7E5;--danger:#B42318;
+  --shadow:0 1px 2px rgba(14,42,31,.06),0 8px 24px -12px rgba(14,42,31,.18);
+  --shadow-lg:0 2px 4px rgba(14,42,31,.05),0 24px 48px -20px rgba(10,107,70,.32);
+  --r:14px;--r-sm:10px;
+  --display:'Schibsted Grotesk','Segoe UI',system-ui,sans-serif;--body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  color-scheme:light}
+html{scroll-padding-top:calc(76px + env(safe-area-inset-top,0px));scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+*,*::before,*::after{box-sizing:border-box}*{margin:0}
+body{font-family:var(--body);background:var(--paper);color:var(--ink);line-height:1.6;font-size:1.0625rem;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:var(--display);color:var(--green-ink);letter-spacing:-.025em;line-height:1.08}
+h1{font-size:clamp(2.4rem,7vw,4.1rem);font-weight:800}h2{font-size:clamp(1.65rem,4.2vw,2.45rem);font-weight:700}h3{font-size:1.12rem;font-weight:700;letter-spacing:-.01em}
+a{color:var(--green)}
+:focus-visible{outline:3px solid var(--leaf);outline-offset:3px;border-radius:6px}
+[hidden]{display:none!important}
+.wrap{max-width:1080px;margin:0 auto;padding:0 20px}.sec{padding:clamp(48px,8vw,92px) 0}.wash{background:var(--wash)}
+.sub,.lead{color:var(--soft);margin-top:12px;max-width:58ch}
+
+/* Boutons : .amber reste le nom de la classe principale (utilisée partout dans l'appli) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;padding:10px 22px;border-radius:var(--r-sm);border:1.5px solid transparent;font:600 1rem var(--body);text-decoration:none;cursor:pointer;color:var(--green-ink);background:none;transition:background-color .15s,border-color .15s,color .15s}
+.amber{background:var(--green);color:#fff;box-shadow:0 1px 0 rgba(255,255,255,.18) inset,0 6px 16px -8px rgba(10,107,70,.7)}.amber:hover{background:var(--green-deep)}
+.light{border-color:var(--green);color:var(--green);background:#fff}.light:hover{background:var(--mint)}
+.line{border-color:var(--line);background:#fff}.line:hover{border-color:var(--mint-line);background:var(--wash)}
+.sm{min-height:40px;padding:6px 14px;font-size:.92rem}
+.red{color:var(--danger);border-color:#F2B8B2;background:#fff}.red:hover{background:var(--bad-bg)}
+.btn:disabled{opacity:.6;cursor:progress}
+
+/* En-tête blanc */
+.top{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.94);backdrop-filter:saturate(1.4) blur(10px);-webkit-backdrop-filter:saturate(1.4) blur(10px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:66px}
+.brand{display:inline-flex;align-items:center;gap:10px;font:800 1.45rem var(--display);letter-spacing:-.03em;text-decoration:none;color:var(--green-ink);cursor:pointer}.brand b{color:var(--leaf)}
+.top nav{display:flex;align-items:center;gap:22px;font-weight:600;font-size:.95rem}.top nav a:not(.btn){color:var(--soft);text-decoration:none;cursor:pointer}.top nav a:not(.btn):hover{color:var(--green)}
+@media(max-width:760px){.top nav a:not(.btn){display:none}}
+
+/* Haut de page : page de cahier Seyès */
+.hero{position:relative;overflow:hidden;color:var(--ink);padding:clamp(44px,8vw,96px) 0 clamp(48px,8vw,100px);
+  background:
+    linear-gradient(90deg,transparent 0 calc(max(20px,(100% - 1080px)/2) - 14px),rgba(47,163,107,.55) calc(max(20px,(100% - 1080px)/2) - 14px) calc(max(20px,(100% - 1080px)/2) - 12px),transparent 0),
+    repeating-linear-gradient(0deg,rgba(10,107,70,.16) 0 1px,transparent 1px 32px),
+    repeating-linear-gradient(0deg,rgba(10,107,70,.06) 0 1px,transparent 1px 8px),
+    repeating-linear-gradient(90deg,rgba(10,107,70,.06) 0 1px,transparent 1px 32px),
+    #fff;border-bottom:1px solid var(--line)}
+.hero::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0) 55%,#fff 100%);pointer-events:none}
+.hero .wrap{position:relative;z-index:1;display:grid;gap:40px;align-items:center;grid-template-columns:1fr}
+@media(min-width:880px){.hero .wrap{grid-template-columns:1.15fr .85fr}}
+.hero h1{color:var(--green-ink);max-width:12ch}
+.hero .sub{color:var(--soft);font-size:1.18rem}
+.hero .pilot{display:inline-flex;align-items:center;gap:8px;margin-top:22px;font-size:.95rem;color:var(--soft)}
+.hero .pilot::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--leaf);box-shadow:0 0 0 4px rgba(47,163,107,.18)}
+
+/* Fiche de séance : aperçu du produit */
+.fiche{background:#fff;border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow-lg);padding:22px 22px 18px;max-width:420px;justify-self:center;width:100%;transform:rotate(-1.2deg)}
+.fiche header{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding-bottom:12px;border-bottom:1px dashed var(--mint-line)}
+.fiche header b{font:700 1.05rem var(--display);color:var(--green-ink)}.fiche header span{font-size:.85rem;color:var(--soft)}
+.fiche dl{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;margin:14px 0 4px;font-size:.96rem}
+.fiche dt{color:var(--soft)}.fiche dd{margin:0;font-weight:600}
+.fiche .lvl{display:flex;gap:4px;align-items:center}.fiche .lvl i{width:22px;height:8px;border-radius:4px;background:var(--mint)}.fiche .lvl i.on{background:var(--leaf)}
+.fiche footer{background:none;margin-top:14px;padding:12px 0 0;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.88rem;color:var(--soft)}
+@media(prefers-reduced-motion:no-preference){.fiche{animation:poser .7s cubic-bezier(.2,.8,.2,1) .15s both}@keyframes poser{from{opacity:0;transform:translateY(14px) rotate(-3deg)}to{opacity:1;transform:rotate(-1.2deg)}}}
+
+.row{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));margin-top:30px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:22px;box-shadow:var(--shadow)}
+.card h3{margin-bottom:6px}.card p{color:var(--soft)}
+.n{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--mint);color:var(--green);font:800 1.05rem var(--display);margin-bottom:12px}
+.tag{display:inline-block;padding:2px 10px;border-radius:999px;background:var(--wash);border:1px solid var(--line);font-size:.84rem;font-weight:600;margin:2px 4px 2px 0;color:var(--green-ink)}
+.ok{background:var(--mint);color:var(--green);border-color:transparent}.warn{background:var(--warn-bg);color:var(--warn);border-color:transparent}.bad{background:var(--bad-bg);color:var(--danger);border-color:transparent}
+.price{font:800 2.1rem var(--display);color:var(--green);letter-spacing:-.03em}
+.note{border-left:4px solid var(--leaf);background:var(--wash);padding:12px 16px;border-radius:var(--r-sm);font-size:.95rem;margin-top:18px}
+form{display:grid;gap:14px}label{display:grid;gap:6px;font-weight:600;font-size:.95rem}
+input,select,textarea{font:inherit;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:var(--r-sm);padding:11px 14px;min-height:48px;width:100%;transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--leaf);box-shadow:0 0 0 4px rgba(47,163,107,.16)}
+input[type=checkbox],input[type=radio]{width:20px;height:20px;min-height:0;accent-color:var(--green)}
+input[type=file]{padding:9px 12px}
+.chk{display:flex;flex-wrap:wrap;gap:8px 18px}label.chk{flex-wrap:nowrap}label.chk>span{flex:1;min-width:0}label.chk>input{flex:none;margin-top:3px}.chk label{display:flex;align-items:center;gap:8px;font-weight:500}
+.two{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+summary{cursor:pointer;color:var(--green);font-weight:600}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px;margin:20px 0;background:var(--wash);border:1px solid var(--line);border-radius:12px;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tabs .btn{white-space:nowrap;border-color:transparent;background:transparent;min-height:38px;color:var(--soft)}
+.tabs .btn:hover{color:var(--green)}
+.tabs .on,.tabs .on:hover{background:#fff;color:var(--green);border-color:var(--line);box-shadow:var(--shadow)}
+.item{border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;background:var(--card);margin-bottom:12px;line-height:1.55}
+.item>:is(div,small,form,details,p,fieldset,img){display:block;margin-top:8px}.item>:first-child{margin-top:0}
+.item>.acts{display:flex}.item>form{display:grid}.item small{color:var(--soft)}.item b{color:var(--green-ink)}.acts{display:flex;flex-wrap:wrap;gap:8px}
+.faq details{border-bottom:1px solid var(--line);padding:16px 0}.faq summary{font-weight:700;color:var(--green-ink);list-style:none;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}.faq summary::after{content:"+";color:var(--green);font:600 1.4rem/1 var(--display)}.faq details[open] summary::after{content:"–"}
+.faq p{color:var(--soft);margin-top:8px;max-width:64ch}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--green-ink);color:#fff;padding:12px 20px;border-radius:12px;font-weight:600;z-index:50;box-shadow:var(--shadow-lg);max-width:calc(100% - 32px)}
+footer{background:var(--green-ink);color:rgba(255,255,255,.78);padding:32px 0;font-size:.92rem}footer a{color:#fff;cursor:pointer}
+.empty{color:var(--soft);padding:14px 0}.mob{display:none}@media(max-width:760px){.mob{display:block}}.narrow{max-width:580px;margin:0 auto}
+fieldset{border-color:var(--line)!important}
+</style></head><body>
+<header class="top"><div class="wrap bar">
+<a class="brand" data-go="accueil"><svg width="34" height="34" viewBox="0 0 40 40" aria-hidden="true"><rect width="40" height="40" rx="10" fill="#0A6B46"/><path d="M8 19.5 20 9l12 10.5M12 18v12.5h16V18" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 20.5v7M16.5 24h7" stroke="#7FD3A6" stroke-width="2.8" stroke-linecap="round"/></svg>Tutora<b>+</b></a>
+<nav><span id="pub" style="display:contents" hidden><a data-go="fonctionnement">Fonctionnement</a><a data-go="tarifs">Tarifs</a><a data-go="faq">Questions</a></span><button class="btn light sm" id="inst" hidden data-act="inst">Installer l’appli</button><span id="navr"></span></nav></div></header>
+<main id="app"><p style="padding:60px 20px;text-align:center;color:var(--soft)">Chargement…</p></main>
+<footer><div class="wrap" id="ft"></div></footer>
+<div class="toast" id="toast" hidden></div>
+<script>
+const MAT={Primaire:['Lecture','Écriture','Calcul','Grammaire'],Collège:['Mathématiques','Physique','Chimie','Français','Biologie']};
+const SB_URL='https://cuoxjhctyegmwakuourm.supabase.co',SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN1b3hqaGN0eWVnbXdha3VvdXJtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTMzMDU3MjIsImV4cCI6MjEwODg4MTcyMn0.hOp2GFAEp1Br1j4erYkK3AfInu3LYsZ9Gl0xHAu2u_M';
+const DEF={prix:25000,sc:8,grp:20000,wa:'224612202678',mail:'lilafna224@gmail.com',zone:'Haphia',pay:'Soutra Money'};
+let D={u:[],req:[],enr:[],ses:[],notes:[],chg:[],tasks:[],done:[],msg:[],rep:[],pays:[],children:[],tutors:[],cfg:{...DEF},me:null,view:null},ip,obs=false,SB;
+try{obs=sessionStorage.getItem('obs')=='1'}catch(e){}
+try{SB=supabase.createClient(SB_URL,SB_KEY)}catch(e){}
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();ip=e;$('#inst').hidden=false});
+const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const me=()=>D.u.find(u=>u.id==D.me),U=id=>D.u.find(u=>u.id==id)||{},gnf=n=>Number(n||0).toLocaleString('fr-FR').replace(/ /g,' ')+' GNF';
+let tab={};const toast=t=>{const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,3200)};
+const tags=a=>(a||[]).map(x=>`<span class="tag">${esc(x)}</span>`).join('');
+const chk=(n,a,sel=[])=>`<div class="chk">${a.map(x=>`<label><input type="checkbox" name="${n}" value="${esc(x)}" ${sel.includes(x)?'checked':''}>${esc(x)}</label>`).join('')}</div>`;
+const allMat=()=>[...MAT.Primaire,...MAT.Collège];
+const stc=s=>/[Vv]alid|Accept|Réalis|vérifié|Traité|Prévue|Payé/.test(s)?'ok':/Refus|Annul|Échou|Expir/.test(s)?'bad':'warn';
+const st=s=>`<span class="tag ${stc(s)}">${esc(s)}</span>`;
+// Dates : la Guinée est à l'heure UTC
+const today=()=>new Date().toISOString().slice(0,10),nowHM=()=>new Date().toISOString().slice(11,16);
+const isPast=(d,h)=>d<today()||(d==today()&&(h||'00:00').slice(0,5)<nowHM());
+const fdate=d=>{try{return new Date(d+'T12:00:00Z').toLocaleDateString('fr-FR',{weekday:'short',day:'numeric',month:'long',timeZone:'UTC'})}catch(e){return d}};
+const hm=h=>(h||'').slice(0,5);
+const JOURS=[[1,'Lundi'],[2,'Mardi'],[3,'Mercredi'],[4,'Jeudi'],[5,'Vendredi'],[6,'Samedi'],[7,'Dimanche']];
+const monthName=m=>{const [y,mo]=m.split('-');return new Date(Date.UTC(+y,+mo-1,15)).toLocaleDateString('fr-FR',{month:'long',year:'numeric',timeZone:'UTC'})};
+const months=()=>{const d=new Date(),r=[];for(let i=0;i<3;i++){const x=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()+i,1));r.push(x.toISOString().slice(0,7))}return r};
+const fileUrl=p=>SB.storage.from('devoirs').getPublicUrl(p).data.publicUrl;
+const rid=()=>{try{return crypto.randomUUID()}catch(e){const a=new Uint8Array(16);crypto.getRandomValues(a);return [...a].map(b=>b.toString(16).padStart(2,'0')).join('')}};
+const errMsg=e=>String(e?.message||e||'').replace(/^.*?ERROR:\s*/,'');
+
+function home(){return `
+<section class="hero"><div class="wrap"><div><h1>Réussir, près de chez vous.</h1>
+<p class="sub">Tutora + met en relation les familles et des étudiants-répétiteurs vérifiés de votre quartier à Conakry, pour le primaire et le collège.</p>
+<div class="row"><a class="btn amber" data-go="entree">Me connecter ou créer un compte</a><a class="btn light" target="_blank" rel="noopener" href="${wa('Bonjour Tutora +, je souhaite des informations.')}">Écrire sur WhatsApp</a></div><p class="pilot">Pilote en cours à ${esc(D.cfg.zone)}</p></div>
+<article class="fiche" aria-label="Exemple de fiche de séance"><header><b>Fiche de séance · Awa</b><span>mar. 4 novembre</span></header>
+<dl><dt>Matière</dt><dd>Mathématiques</dd><dt>Travaillé</dt><dd>Fractions et équations</dd><dt>Niveau</dt><dd class="lvl"><i class="on"></i><i class="on"></i><i class="on"></i><i></i><span style="margin-left:6px;font-weight:500;color:var(--soft)">Bien</span></dd><dt>Devoirs</dt><dd>Exercices 4 à 7, page 42</dd></dl>
+<footer><span>Fatou B., répétitrice vérifiée</span><span class="tag ok" style="margin:0">Séance confirmée</span></footer></article></div></section>
+<div class="wrap mob"><div class="tabs" style="margin:14px 0 0"><a class="btn sm line" data-go="fonctionnement">Fonctionnement</a><a class="btn sm line" data-go="tarifs">Tarifs</a><a class="btn sm line" data-go="faq">Questions</a></div></div><section class="sec" id="fonctionnement"><div class="wrap"><h2>Comment ça marche</h2><p class="lead">Tout se passe entre vous et le répétiteur, depuis votre téléphone.</p>
+<div class="grid">${[['Vous choisissez un répétiteur','Parmi les profils vérifiés de votre quartier, en individuel ou en groupe.'],['Vous planifiez le mois','En une fois : les jours et l’heure. Le répétiteur confirme.'],['La séance a lieu','Le répétiteur remplit une fiche pour chaque enfant et dépose les devoirs.'],['Vous suivez et payez','Progrès, devoirs, messages. Paiement Soutra Money, validé automatiquement.']].map((s,i)=>`<div class="card"><div class="n">${i+1}</div><h3>${s[0]}</h3><p>${s[1]}</p></div>`).join('')}</div></div></section>
+<section class="sec wash"><div class="wrap"><h2>Niveaux et matières</h2><p class="lead">Avec une attention particulière à la préparation du CEE et du BEPC.</p>
+<div class="grid"><div class="card"><h3>Primaire</h3>${tags(MAT.Primaire)}</div><div class="card"><h3>Collège</h3>${tags(MAT.Collège)}</div><div class="card"><h3>Cours individuel</h3><p>Un répétiteur, un élève.</p></div><div class="card"><h3>Cours de groupe</h3><p>2 à 6 élèves : vos propres enfants, ou des enfants de plusieurs familles du quartier. Chaque parent ne voit que les progrès de son enfant.</p></div></div></div></section>
+<section class="sec" id="tarifs"><div class="wrap"><h2>Tarifs</h2><p class="lead">Tarifs indicatifs du pilote, à confirmer.</p>
+<div class="grid"><div class="card"><h3>Individuel</h3><div class="price">${gnf(D.cfg.prix)}</div><p>par séance · environ ${gnf(D.cfg.prix*D.cfg.sc)} pour ${D.cfg.sc} séances par mois</p></div><div class="card"><h3>Groupe</h3><div class="price">${gnf(D.cfg.grp)}</div><p>par élève et par séance</p></div></div>
+<div class="note"><b>Paiement :</b> vous ne payez que les séances réalisées et confirmées par vous. Le paiement se fait par ${esc(D.cfg.pay)} dans l’appli et il est validé automatiquement : personne ne peut le valider à la main.</div></div></section>
+<section class="sec wash"><div class="wrap"><h2>Répétiteurs : validation réelle</h2><p class="lead">Un profil n’apparaît qu’après vérification de sa carte d’étudiant et un rendez-vous avec l’équipe.</p></div></section>
+<section class="sec faq" id="faq"><div class="wrap"><h2>Questions</h2>
+${[['Qui sont les répétiteurs ?','Des étudiants dont la carte d’étudiant est vérifiée, puis reçus en rendez-vous par l’équipe avant validation.'],['Comment choisir le répétiteur ?','Vous le choisissez vous-même dans la liste des profils validés, ou vous laissez l’équipe choisir pour vous.'],['Comment se fait le planning ?','Une fois par mois : vous cochez les jours et l’heure, toutes les séances du mois sont créées d’un coup. Le répétiteur confirme le mois.'],['Je veux changer ou annuler une séance','Demandez un report ou une annulation dans votre planning. Le répétiteur doit l’accepter (et inversement). Une séance déjà réalisée ne peut plus être annulée.'],['Comment fonctionnent les groupes ?','Groupe familial : plusieurs de vos enfants ensemble. Groupe ouvert : vous recevez un code à partager avec d’autres parents. Chacun ne voit que la fiche de son enfant.'],['Mon enfant a-t-il son espace ?','Oui : ses devoirs, ses progrès et ses questions au répétiteur. Avec son téléphone (QR code), ou sur votre téléphone s’il n’en a pas.'],['Comment je paie ?',`Dans l’onglet Paiement, par ${esc(D.cfg.pay)}. Le paiement est confirmé automatiquement par Soutra Money.`],['Où êtes-vous disponibles ?',`Le pilote démarre à ${esc(D.cfg.zone)}.`]].map(q=>`<details><summary>${q[0]}</summary><p>${q[1]}</p></details>`).join('')}</div></section>`}
+
+const PORT={parent:'Parent',rep:'Répétiteur',admin:'Administrateur'},RL={attente:'En attente',rdv:'Rendez-vous fixé',valide:'Profil validé',refuse:'Profil refusé'};
+const viewing=()=>{const a=me();return a&&a.role=='admin'&&D.view&&D.u.some(x=>x.id==D.view)?U(D.view):null},cur=()=>viewing()||me();
+const who=id=>id==0||!U(id).id||U(id).role=='admin'?'L’équipe':U(id).nom;
+const wa=t=>`https://wa.me/${D.cfg.wa}?text=${encodeURIComponent(t)}`,pn=()=>'+224 '+D.cfg.wa.slice(3).replace(/(\d{3})(\d{2})(\d{2})(\d{2})/,'$1 $2 $3 $4');
+const num=t=>{t=String(t||'').replace(/\D/g,'');return t.length==9?'224'+t:t},wam=(tel,t)=>`https://wa.me/${num(tel)}?text=${encodeURIComponent(t)}`,wb=(l,h)=>`<a class="btn sm line" target="_blank" rel="noopener" href="${h}">${l}</a>`;
+const cons=role=>`<label class="chk" style="display:flex;gap:10px;align-items:flex-start;font-weight:500"><input type="checkbox" name="ok" required><span>J’ai lu et j’accepte les <a href="#conditions" target="_blank" style="text-decoration:underline">conditions d’utilisation</a> et la <a href="#confidentialite" target="_blank" style="text-decoration:underline">politique de confidentialité</a>${role=='parent'?'. J’autorise Tutora + à traiter les données de mon enfant pour le soutien scolaire.':'. J’autorise la vérification de ma carte d’étudiant.'}</span></label>`;
+function legal(k){const C=[['Conditions d’utilisation',[['Objet','Tutora + met en relation des familles et des étudiants-répétiteurs. Tutora + n’est pas l’employeur des répétiteurs.'],['Comptes','Chacun protège ses identifiants et fournit des informations exactes.'],['Répétiteurs','Un profil n’est validé qu’après vérification de la carte d’étudiant et un rendez-vous avec l’équipe.'],['Planning','Le parent planifie les séances du mois en une fois ; le répétiteur confirme. Un report ou une annulation demandé par l’un doit être accepté par l’autre. Une séance réalisée ne peut plus être annulée.'],['Validation d’une séance','Une séance est validée quand le répétiteur remplit la fiche et que le parent la confirme sur la plateforme.'],['Paiement','Le parent paie les séances confirmées par Soutra Money dans l’appli. Le paiement est validé automatiquement par le prestataire ; ni le parent ni l’équipe ne peuvent le valider manuellement. Un remboursement n’est possible qu’après une plainte validée par Tutora +.'],['Litiges','L’équipe Tutora + peut intervenir à tout moment sur un cours ou une séance.'],['Conduite','Contourner la plateforme ou tout comportement inapproprié envers un enfant peut entraîner la suppression du compte.']]],['Politique de confidentialité et consentement',[['Données collectées','Identité, contact, quartier, niveau scolaire de l’enfant, historique des séances, devoirs et messages ; pour les répétiteurs, informations de la carte d’étudiant.'],['Usage','Organiser les cours, suivre les progrès, vérifier les répétiteurs, traiter les paiements et les litiges. Aucune vente de données.'],['Accès','Chaque utilisateur ne voit que son espace. Dans un groupe, chaque parent ne voit que la fiche de son enfant. L’équipe Tutora + a accès à l’ensemble. Le parent voit tous les messages de son enfant.'],['Devoirs','Les fichiers de devoirs sont accessibles par un lien difficile à deviner ; n’y mettez pas de données personnelles.'],['Enfants','Le parent consent au traitement des données de son enfant et peut retirer ce consentement à tout moment.'],['Vos droits',`Pour consulter, corriger ou supprimer vos données : ${D.cfg.mail}.`]]]][k];
+return `<section class="sec"><div class="wrap narrow"><h2>${C[0]}</h2><div class="note">Brouillon à faire valider avant la mise en production.</div>${C[1].map(x=>`<h3 style="margin-top:20px">${x[0]}</h3><p class="lead" style="margin-top:6px">${x[1]}</p>`).join('')}</div></section>`}
+const qr=t=>{try{const q=qrcode(0,'M');q.addData(t);q.make();return q.createImgTag(5,2).replace('<img','<img alt="QR code" style="max-width:220px;border-radius:8px;background:#fff"')}catch(e){return `<small>${esc(t)}</small>`}};
+
+// ---------- Données dérivées ----------
+const Q=id=>D.req.find(r=>r.id==id)||{};
+const kidsOf=q=>D.enr.filter(e=>e.qid==q);                       // RLS : un parent ne reçoit que SES enfants
+const kidNames=q=>kidsOf(q).map(e=>e.prenom).join(', ')||Q(q).enfant||'—';
+const qLabel=r=>`${r.type=='Groupe'?(r.grp_mode=='ouvert'?'Groupe ouvert':'Groupe familial'):'Individuel'} · ${(r.mat||[]).join(', ')}`;
+const pendingChg=sid=>D.chg.find(c=>c.sid==sid&&c.st=='En attente');
+const canChange=s=>['Prévue','À confirmer'].includes(s.st)&&!D.notes.some(n=>n.sid==s.id)&&!isPast(s.date,s.heure);
+const sesLine=s=>`<b>${esc(fdate(s.date))} à ${esc(hm(s.heure))}</b> · ${esc(kidNames(s.qid))} ${st(s.st)}`;
+
+// Bloc report / annulation : demandé par un côté, accepté par l'autre
+function changeBox(s,u){if(viewing())return '';const c=pendingChg(s.id),party=u.id==s.pid||u.id==s.rid||u.role=='admin';
+if(c){const txt=c.kind=='annulation'?'Annulation demandée':`Report demandé au ${fdate(c.new_date)} à ${hm(c.new_heure)}`;
+ if(c.asked_by==u.id)return `<div class="note" style="margin:4px 0">${txt} · motif : ${esc(c.motif)}. En attente de la réponse de l’autre partie.</div>`;
+ return `<div class="note" style="margin:4px 0">${txt} par ${esc(who(c.asked_by))} · motif : ${esc(c.motif)}${party?`<div class="acts" style="margin-top:8px"><button class="btn sm amber" data-act="chgok" data-id="${c.id}">Accepter</button><button class="btn sm red" data-act="chgno" data-id="${c.id}">Refuser</button></div>`:''}</div>`}
+if(!canChange(s)||!(u.id==s.pid||u.id==s.rid))return '';
+return `<details><summary>Demander un report ou une annulation</summary><form data-f="chg" data-id="${s.id}" style="margin-top:10px"><label>Type<select name="kind"><option value="report">Reporter à une autre date</option><option value="annulation">Annuler cette séance</option></select></label><div class="two"><label>Nouvelle date<input type="date" name="d" min="${today()}"></label><label>Heure<input type="time" name="h"></label></div><label>Motif<input name="why" required minlength="3"></label><button class="btn sm amber">Envoyer la demande</button></form></details>`}
+
+function kids(u){const ks=D.children.filter(k=>k.pid==u.id),base=location.origin+location.pathname+'#eleve-';
+return `<form data-f="kid" class="card" style="margin-bottom:14px"><h3>Ajouter un enfant</h3><div class="two"><label>Prénom<input name="prenom" required></label><label>Niveau<select name="niveau"><option>Primaire</option><option>Collège</option></select></label></div><label class="chk" style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" name="tel" value="1">Mon enfant a son propre téléphone</label><button class="btn sm amber">Ajouter</button></form>`+(ks.map(k=>`<div class="item"><div><b>${esc(k.prenom)}</b> · ${esc(k.niveau)} <span class="tag">${k.a_telephone?'Avec téléphone':'Sans téléphone'}</span></div>${k.a_telephone?`<div>${qr(base+k.token)}</div><small>Votre enfant scanne ce QR code avec son téléphone pour ouvrir son espace : devoirs, progrès, questions au répétiteur.</small>`:`<small>Il utilise votre téléphone : ouvrez son espace et laissez-le faire ses devoirs et poser ses questions.</small>`}<div class="acts"><a class="btn sm amber" data-go="eleve-${k.token}">Ouvrir son espace sur ce téléphone</a>${k.a_telephone?`<button class="btn sm line" data-act="copy" data-link="${esc(base+k.token)}">Copier le lien</button>`:''}</div></div>`).join('')||'<p class="empty">Aucun enfant ajouté. Ajoutez-en un pour demander un répétiteur.</p>')}
+
+// ---------- Espace élève ----------
+let CT=null,CD=null;
+async function childLoad(tok){CT=tok;try{const {data,error}=await SB.rpc('child_view',{tok});if(error||!data){$('#app').innerHTML='<section class="sec"><div class="wrap narrow"><h2>Lien invalide</h2><p class="lead">Demande un nouveau QR code à ton parent.</p></div></section>';return}CD=data;childPage()}catch(e){toast('Connexion impossible')}}
+function childPage(){const c=CD.child,ss=CD.sessions||[],next=ss.filter(s=>s.st=='Prévue'&&!isPast(s.date,s.heure)).slice(0,6),done=ss.filter(s=>s.note).reverse(),tk=CD.tasks||[],todo=tk.filter(t=>!t.fait),cours=CD.cours||[];
+const task=t=>`<div class="item"><b>${esc(t.titre)}</b>${t.echeance?`<small>À rendre pour le ${esc(fdate(t.echeance))}</small>`:''}${t.consigne?`<div>${esc(t.consigne)}</div>`:''}${t.fichier?`<div class="acts"><a class="btn sm line" target="_blank" rel="noopener" href="${esc(fileUrl(t.fichier))}">📎 Ouvrir ${esc(t.fichier_nom||'le fichier')}</a></div>`:''}<small>Donné par ${esc(t.rep)}</small>${t.fait?`<div>${st('Fait')} ${t.reponse?`<small>Ta réponse : ${esc(t.reponse)}</small>`:''}</div>`:`<form data-f="tdone" data-id="${t.id}"><label>Ta réponse ou une remarque (facultatif)<textarea name="rep" maxlength="2000"></textarea></label><button class="btn sm amber">J’ai fini ce devoir</button></form>`}</div>`;
+$('#app').innerHTML=`<section class="sec"><div class="wrap narrow">${D.me?'<a data-go="espace" style="cursor:pointer;color:var(--soft)">← Retour à l’espace parent</a>':''}<h2 style="margin-top:8px">Salut ${esc(c.prenom)} !</h2><p class="lead">Tes devoirs, tes progrès et tes questions au répétiteur.</p>
+<h3 style="margin-top:22px">Devoirs à faire ${todo.length?`<span class="tag warn">${todo.length}</span>`:''}</h3>${todo.map(task).join('')||'<p class="empty">Aucun devoir à faire. Bravo !</p>'}
+<h3 style="margin-top:22px">Prochaines séances</h3>${next.map(s=>`<div class="item"><b>${esc(fdate(s.date))} à ${esc(hm(s.heure))}</b><small>Avec ${esc(s.rep)}</small></div>`).join('')||'<p class="empty">Aucune séance prévue.</p>'}
+<h3 style="margin-top:22px">Mes progrès</h3>${done.map(s=>`<div class="item"><b>${esc(fdate(s.date))}</b>${s.note.present===false?'<div>Absent</div>':`<div><b>Travaillé :</b> ${esc(s.note.notions)}<br><b>Niveau :</b> ${esc(s.note.niveau)}<br><b>Devoirs :</b> ${esc(s.note.devoirs||'—')}${s.note.obs?`<br><b>Conseil :</b> ${esc(s.note.obs)}`:''}</div>`}</div>`).join('')||'<p class="empty">Rien pour le moment.</p>'}
+${tk.some(t=>t.fait)?`<details style="margin-top:16px"><summary><b>Devoirs terminés</b></summary>${tk.filter(t=>t.fait).map(task).join('')}</details>`:''}
+<h3 style="margin-top:22px">Questions à ton répétiteur</h3><div class="note" style="margin:8px 0 12px">Tes parents peuvent lire ces messages.</div>${(CD.messages||[]).map(m=>`<div class="item" style="max-width:88%;${m.mine?'margin-left:auto;background:var(--wash)':''}"><small>${m.mine?'Toi':esc(m.rep||'Répétiteur')} · ${esc(new Date(m.t).toLocaleString('fr-FR'))}</small>${esc(m.txt)}</div>`).join('')||'<p class="empty">Aucun message.</p>'}
+${cours.length?`<form data-f="cmsg" style="margin-top:12px">${cours.length>1?`<label>À qui ?<select name="q">${cours.map(x=>`<option value="${x.q}">${esc(x.rep)} (${esc((x.mat||[]).join(', '))})</option>`).join('')}</select></label>`:`<input type="hidden" name="q" value="${cours[0].q}">`}<label>Ta question<textarea name="txt" required maxlength="1000"></textarea></label><button class="btn amber">Envoyer</button></form>`:'<p class="empty">Tu pourras écrire à ton répétiteur dès que ton cours aura commencé.</p>'}</div></section>`}
+
+function entree(){const c=(go,n,t,d)=>`<a class="card" data-go="${go}" style="display:block;text-decoration:none;color:inherit;cursor:pointer"><div class="n">${n}</div><h3>${t}</h3><p>${d}</p></a>`;
+return `<section class="sec"><div class="wrap"><h1 style="font-size:clamp(2rem,6vw,3.2rem)">Bienvenue sur Tutora +</h1><p class="lead">Pour commencer, dites-nous qui vous êtes.</p><div class="grid">${c('parent-connexion',1,'Je suis parent','Je me connecte ou je crée mon compte pour trouver un répétiteur.')}${c('rep-connexion',2,'Je suis répétiteur','Je me connecte ou je m’inscris avec ma carte d’étudiant.')}${c('observer',3,'Je visite le site','Je consulte simplement les informations publiques.')}</div><p style="margin-top:28px"><a data-go="admin-connexion" style="cursor:pointer;text-decoration:underline;color:var(--soft)">Accès administrateur</a></p></div></section>`}
+function auth(role,mode){const sign=mode=='inscription'&&role!='admin',rep=role=='rep';
+return `<section class="sec"><div class="wrap narrow"><a data-go="entree" style="cursor:pointer;color:var(--soft)">← Changer de profil</a><h2 style="margin-top:10px">${PORT[role]} : ${sign?'créer un compte':'se connecter'}</h2>
+${role!='admin'?`<div class="tabs"><a class="btn sm line ${!sign?'on':''}" data-go="${role}-connexion">J’ai déjà un compte</a><a class="btn sm line ${sign?'on':''}" data-go="${role}-inscription">Créer un compte</a></div>`:'<p class="lead">Accès réservé à l’équipe Tutora +.</p>'}
+<form data-f="${sign?'signup':'login'}" style="margin-top:16px"><input type="hidden" name="role" value="${role}">
+${sign?`<label>Nom complet<input name="nom" required></label><label>Téléphone / WhatsApp<input name="tel" type="tel" required></label><label>Quartier<input name="quartier" required></label>`:''}
+<label>Email<input name="email" type="email" required></label><label>Mot de passe<input name="pw" type="password" minlength="6" required></label>
+${sign&&rep?`<label>Matières enseignées${chk('mat',allMat())}</label><label>Niveaux pris en charge${chk('niv',['Primaire','Collège'])}</label><label>Disponibilités<input name="dispo" placeholder="Ex. lun–ven après 17 h" required></label>
+<h3>Votre carte d’étudiant</h3><label>Établissement<input name="ecole" required></label><div class="two"><label>Filière et année d’études<input name="filiere" required></label><label>N° de carte d’étudiant<input name="num" required></label></div><label>Photo ou scan de la carte<input type="file" name="fcarte" accept="image/*,.pdf" required></label>
+<div class="note">Après votre inscription, votre profil sera mis en attente. L’équipe vérifiera votre carte puis vous donnera un rendez-vous.</div>`:''}
+${sign?cons(role):''}<button class="btn amber">${sign?'Créer mon compte':'Me connecter'}</button></form></div></section>`}
+
+// ---------- Messages ----------
+function msgs(u){const ro=!!viewing(),fmt=m=>`<div class="item" style="max-width:88%;${m.from==u.id?'margin-left:auto;background:var(--wash)':''}"><small>${esc(m.t)} · ${m.from==u.id?'Vous':m.from?esc(who(m.from)):'Élève'}</small>${esc(m.txt)}</div>`;
+if(u.role=='admin')return `<form data-f="msg" class="card" style="margin-bottom:14px"><label>Écrire à<select name="to" required><option value="">Choisir…</option>${D.u.filter(x=>x.role!='admin').map(x=>`<option value="${x.id}">${esc(x.nom)} (${x.role=='rep'?'répétiteur':'parent'})</option>`).join('')}</select></label><label>Message<textarea name="txt" required></textarea></label><button class="btn sm amber">Envoyer</button></form><h3>Tous les messages</h3><div style="margin-top:12px">${[...D.msg].reverse().map(m=>`<div class="item"><small>${esc(m.t)} · ${esc(m.from?U(m.from).nom:'Élève '+(D.enr.find(e=>e.child_id==m.ch)?.prenom||''))} → ${esc(m.ch&&m.from?'Élève '+(D.enr.find(e=>e.child_id==m.ch)?.prenom||''):who(m.to))}</small>${esc(m.txt)}</div>`).join('')||'<p class="empty">Aucun message.</p>'}</div>`;
+const par=u.role=='parent',acc=D.req.filter(r=>r.st=='Acceptée'),
+ps=par?[...new Set(D.req.filter(r=>r.rid).map(r=>r.rid))]:[...new Set(D.req.filter(r=>r.rid==u.id).flatMap(r=>[r.pid,...D.enr.filter(e=>e.qid==r.id).map(e=>e.pid)]))],
+kd=[...new Map(D.enr.filter(e=>acc.some(r=>r.id==e.qid&&(par?e.pid==u.id:r.rid==u.id))).map(e=>[e.child_id,{id:e.child_id,n:e.prenom}])).values()],
+cs=[0,...ps,...kd.map(k=>'k'+k.id)].map(String),c=tab.mc!=null&&cs.includes(String(tab.mc))?String(tab.mc):'0',isK=c[0]=='k',
+nm=i=>i[0]=='k'?'Élève '+(kd.find(k=>'k'+k.id==i)?.n||''):who(i),
+th=D.msg.filter(m=>isK?m.ch==c.slice(1):c=='0'?(!m.ch&&((m.from==u.id&&m.to==0)||(m.to==u.id&&!ps.includes(m.from)))):(!m.ch&&((m.from==u.id&&m.to==c)||(m.from==c&&m.to==u.id))));
+return `<div class="tabs">${cs.map(i=>`<button class="btn sm line ${i==c?'on':''}" data-act="ct" data-id="${i}">${esc(nm(i))}</button>`).join('')}</div>${isK&&par?'<div class="note" style="margin:0 0 12px">Vous voyez les questions de votre enfant à son répétiteur. Pour écrire comme lui, ouvrez son espace (onglet Mes enfants).</div>':''}${th.map(fmt).join('')||'<p class="empty">Aucun message.</p>'}${ro||(isK&&par)?'':`<form data-f="msg" data-to="${c}" style="margin-top:14px"><label>Votre message<textarea name="txt" required></textarea></label><button class="btn sm amber">Envoyer</button></form>`}`}
+
+// ---------- Demande d'un cours (parent) ----------
+function reqForm(){const u=cur();if(!u||u.role!='parent')return '<section class="sec"><div class="wrap narrow"><h2>Demander un répétiteur</h2><p class="lead">Cette page est réservée aux comptes parents.</p></div></section>';
+const ks=D.children.filter(k=>k.pid==u.id);if(!ks.length)return `<section class="sec"><div class="wrap narrow"><h2>Demander un répétiteur</h2><p class="lead">Ajoutez d’abord votre enfant, pour qu’il ait son espace et ses devoirs.</p><button class="btn amber" data-act="goKids">Ajouter mon enfant</button></div></section>`;
+const t=D.tutors.find(x=>x.id==tab.pick);
+return `<section class="sec"><div class="wrap narrow"><a data-act="backTutors" style="cursor:pointer;color:var(--soft)">← Liste des répétiteurs</a><h2 style="margin-top:8px">Demander un cours</h2>
+<div class="note">${t?`Répétiteur choisi : <b>${esc(t.nom)}</b> · ${esc(t.quartier)} ${t.note?`· ★ ${t.note}`:''}. Il recevra votre demande directement.`:'Vous laissez l’équipe Tutora + choisir le répétiteur pour vous.'}</div>
+<form data-f="req" style="margin-top:20px"><input type="hidden" name="rep" value="${t?esc(t.id):''}">
+<label>Type de cours<select name="type"><option value="Individuel">Individuel (un enfant)</option><option value="Groupe">Groupe (2 à 6 élèves)</option></select></label>
+<fieldset data-grp hidden style="border:2px solid var(--line);border-radius:12px;padding:12px 14px"><legend style="font-weight:700;padding:0 6px">Qui est dans le groupe ?</legend>
+<label class="chk" style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="radio" name="mode" value="famille" checked>Uniquement mes enfants (même famille)</label>
+<label class="chk" style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="radio" name="mode" value="ouvert">Avec des enfants d’autres parents : je recevrai un code à leur partager</label>
+<small style="color:var(--soft)">Dans tous les cas, chaque parent ne voit que la fiche et les progrès de son propre enfant.</small></fieldset>
+<label>Enfant(s) concerné(s)<div class="chk">${ks.map(k=>`<label><input type="checkbox" name="kids" value="${k.id}" ${ks.length==1?'checked':''}>${esc(k.prenom)} · ${esc(k.niveau)}</label>`).join('')}</div></label>
+<label>Matières${chk('mat',t?.mat?.length?t.mat:allMat())}</label><label class="chk"><span style="display:flex;gap:8px;align-items:center"><input type="checkbox" name="exam" value="1">Préparation au CEE ou au BEPC</span></label>
+<div class="two"><label>Quartier<input name="quartier" value="${esc(u.quartier)}" required></label><label>Budget mensuel (facultatif)<input name="budget" placeholder="Ex. 200 000 GNF"></label></div>
+<label>Jours et heures souhaités<input name="dispo" required placeholder="Ex. mar. et jeu. après 17 h"></label>
+<button class="btn amber">Envoyer ma demande</button></form></div></section>`}
+
+const T=(role,list)=>{const t=list.some(x=>x[0]==tab[role])?tab[role]:list[0][0];return `<div class="tabs">${list.map(([k,l])=>`<button class="btn sm line ${k==t?'on':''}" data-act="tab" data-r="${role}" data-v="${k}">${l}</button>`).join('')}</div>`};
+const curTab=(role,list)=>list.some(x=>x[0]==tab[role])?tab[role]:list[0][0];
+const badge=n=>n?` <span class="tag warn" style="margin:0">${n}</span>`:'';
+
+function space(){const u=cur(),h=u.role=='parent'?parent(u):u.role=='rep'?tutor(u):admin();
+return `<section class="sec"><div class="wrap">${viewing()?`<div class="note" style="margin:0 0 16px">Vous consultez l’espace de <b>${esc(u.nom)}</b> en tant qu’administrateur. <button class="btn sm line" data-act="unview">Retour à mon espace</button></div>`:''}<div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:center"><div><h2>Bonjour ${esc(u.nom.split(' ')[0])}</h2><p class="lead" style="margin:4px 0 0">Espace ${{parent:'parent',rep:'répétiteur',admin:'administrateur'}[u.role]}</p></div><button class="btn line sm" data-act="logout">Se déconnecter</button></div>${h}</div></section>`}
+
+// ---------- Espace parent ----------
+function parent(u){const mineQ=D.req.filter(r=>r.pid==u.id||D.enr.some(e=>e.qid==r.id&&e.pid==u.id)),qids=mineQ.map(r=>r.id),
+ses=D.ses.filter(s=>qids.includes(s.qid)&&s.st!='Annulée').sort((a,b)=>(a.date+a.heure).localeCompare(b.date+b.heure)),
+myNotes=D.notes.filter(n=>n.pid==u.id),toConf=myNotes.filter(n=>!n.conf).length,chgIn=D.chg.filter(c=>c.st=='En attente'&&c.asked_by!=u.id&&ses.some(s=>s.id==c.sid&&s.pid==u.id)).length,
+L=[['c','Mes cours'],['r','Trouver un répétiteur'],['p','Planning'+badge(chgIn)],['s','Suivi et devoirs'+badge(toConf)],['f','Paiement'],['k','Mes enfants'],['m','Messages']],t=curTab('parent',L);let b='';
+if(t=='r'){const f=tab.flt||{},list=D.tutors.filter(x=>(!f.mat||(x.mat||[]).includes(f.mat))&&(!f.niv||(x.niv||[]).includes(f.niv))&&(!f.q||(x.quartier||'').toLowerCase().includes(f.q.toLowerCase())));
+ b=`<form data-f="flt" class="card" style="margin-bottom:14px"><div class="two"><label>Matière<select name="mat"><option value="">Toutes</option>${allMat().map(m=>`<option ${f.mat==m?'selected':''}>${m}</option>`).join('')}</select></label><label>Niveau<select name="niv"><option value="">Tous</option>${['Primaire','Collège'].map(m=>`<option ${f.niv==m?'selected':''}>${m}</option>`).join('')}</select></label></div><label>Quartier<input name="q" value="${esc(f.q||'')}" placeholder="Ex. Haphia"></label><div class="acts"><button class="btn sm amber">Filtrer</button><button type="button" class="btn sm line" data-act="pick" data-id="">Laisser l’équipe choisir pour moi</button></div></form>`+
+ (list.map(x=>`<div class="item"><b>${esc(x.nom)}</b> ${x.note?`<span class="tag ok">★ ${x.note} (${x.nb_avis} avis)</span>`:'<span class="tag">Nouveau</span>'}<div>${tags(x.mat)}${tags(x.niv)}</div><small>${esc(x.quartier)} · ${esc(x.dispo)}</small><div class="acts"><button class="btn sm amber" data-act="pick" data-id="${x.id}">Choisir ce répétiteur</button></div></div>`).join('')||'<p class="empty">Aucun répétiteur ne correspond. Élargissez la recherche ou laissez l’équipe choisir.</p>')}
+if(t=='c'){b=`<div class="acts" style="margin-bottom:14px"><button class="btn amber" data-act="tab" data-r="parent" data-v="r">+ Nouveau cours</button></div>`+
+ mineQ.map(r=>{const own=r.pid==u.id,planned=[...new Set(D.ses.filter(s=>s.qid==r.id&&s.st!='Annulée').map(s=>s.mois).filter(Boolean))],free=months().filter(m=>!planned.includes(m)),
+  inv=r.code?`Bonjour, je vous invite à rejoindre notre groupe de soutien scolaire Tutora + (${(r.mat||[]).join(', ')}). Dans l’appli, onglet Mes enfants, entrez le code : ${r.code}`:'';
+  return `<div class="item"><b>${esc(kidNames(r.id))} · ${esc(qLabel(r))}</b> ${st(r.st=='Envoyée'?'En attente du répétiteur':r.st=='Nouvelle'?'L’équipe choisit le répétiteur':r.st)}${r.type=='Groupe'?` <span class="tag">${D.gsize[r.id]||'?'} élève(s)</span>`:''}
+  <small>Répétiteur : ${r.rid?esc(U(r.rid).nom||'—'):'à choisir par l’équipe'}${r.motif?' · Motif : '+esc(r.motif):''}</small>
+  ${r.code&&own?`<div class="note" style="margin:4px 0">Code du groupe : <b style="font-size:1.2rem;letter-spacing:.1em">${esc(r.code)}</b> · à partager aux autres parents.<div class="acts" style="margin-top:8px">${wb('Partager sur WhatsApp','https://wa.me/?text='+encodeURIComponent(inv))}</div></div>`:''}
+  ${!own?'<small>Vous avez rejoint ce groupe. Le planning est fait par le parent qui l’a créé.</small>':''}
+  ${planned.length?`<small>Mois planifiés : ${planned.sort().map(m=>esc(monthName(m))+' ('+D.ses.filter(s=>s.qid==r.id&&s.mois==m&&s.st!='Annulée').length+' séances'+(D.ses.some(s=>s.qid==r.id&&s.mois==m&&s.st=='À confirmer')?', à confirmer par le répétiteur':'')+')').join(' · ')}</small>`:''}
+  ${own&&r.st=='Acceptée'&&free.length&&!viewing()?`<details ${planned.length?'':'open'}><summary><b>Planifier un mois</b></summary><form data-f="plan" data-id="${r.id}" style="margin-top:10px"><label>Mois<select name="m">${free.map(m=>`<option value="${m}">${esc(monthName(m))}</option>`).join('')}</select></label><label>Jours de cours chaque semaine${`<div class="chk">${JOURS.map(([v,l])=>`<label><input type="checkbox" name="j" value="${v}">${l}</label>`).join('')}</div>`}</label><label>Heure<input type="time" name="h" required value="17:00"></label><small style="color:var(--soft)">Toutes les séances du mois sont créées d’un coup (à partir d’aujourd’hui). Le répétiteur confirme ensuite le mois.</small><button class="btn sm amber">Créer le planning du mois</button></form></details>`:''}
+  ${r.st.startsWith('Refus')&&own?`<div class="acts"><button class="btn sm line" data-act="tab" data-r="parent" data-v="r">Choisir un autre répétiteur</button></div>`:''}</div>`}).join('')+
+ (mineQ.length?'':'<p class="empty">Aucun cours pour l’instant. Choisissez un répétiteur pour commencer.</p>')}
+if(t=='p'){const by={};ses.forEach(s=>(by[s.mois||s.date.slice(0,7)]??=[]).push(s));
+ b=Object.keys(by).sort().map(m=>`<h3 style="margin:18px 0 10px;text-transform:capitalize">${esc(monthName(m))}</h3>`+by[m].map(s=>`<div class="item">${sesLine(s)}<small>${esc(qLabel(Q(s.qid)))} · Répétiteur : ${esc(U(s.rid).nom)}${s.st=='À confirmer'?' · en attente de sa confirmation':''}</small>${changeBox(s,u)}</div>`).join('')).join('')||'<p class="empty">Aucune séance. Planifiez un mois depuis l’onglet Mes cours.</p>'}
+if(t=='s'){const ns=myNotes.map(n=>({n,s:D.ses.find(s=>s.id==n.sid)||{}})).sort((a,b)=>(b.s.date||'').localeCompare(a.s.date||'')),avised=new Set(D.rep.filter(x=>x.kind=='avis'&&x.by==u.id).map(x=>x.sid)),
+ myK=D.children.filter(k=>k.pid==u.id).map(k=>k.id),tk=D.tasks.filter(x=>x.child_id?myK.includes(x.child_id):D.enr.some(e=>e.qid==x.qid&&e.pid==u.id));
+ b=(tk.length?`<h3 style="margin:6px 0 10px">Devoirs donnés</h3>`+tk.map(x=>{const kk=x.child_id?[x.child_id]:D.enr.filter(e=>e.qid==x.qid&&e.pid==u.id).map(e=>e.child_id);return `<div class="item"><b>${esc(x.titre)}</b>${x.echeance?` <small>pour le ${esc(fdate(x.echeance))}</small>`:''}${x.consigne?`<div>${esc(x.consigne)}</div>`:''}${x.fichier?`<div class="acts"><a class="btn sm line" target="_blank" rel="noopener" href="${esc(fileUrl(x.fichier))}">📎 ${esc(x.fichier_nom||'Fichier')}</a></div>`:''}<div>${kk.map(c=>{const d=D.done.find(z=>z.task_id==x.id&&z.child_id==c),n=D.children.find(k=>k.id==c)?.prenom;return `<span class="tag ${d?'ok':'warn'}">${esc(n)} : ${d?'fait':'à faire'}</span>`}).join('')}</div></div>`}).join(''):'')+
+ `<h3 style="margin:18px 0 10px">Fiches de séance</h3>`+(ns.map(({n,s})=>`<div class="item"><b>${esc(fdate(s.date))}</b> · ${esc(D.children.find(k=>k.id==n.child_id)?.prenom)} · ${esc(U(s.rid).nom)}
+ ${n.present===false?'<div>Absent à cette séance (non facturée).</div>':`<div><b>Notions :</b> ${esc(n.notions)}<br><b>Niveau perçu :</b> ${esc(n.niveau)}<br><b>Devoirs :</b> ${esc(n.devoirs||'—')}<br><b>Remarques :</b> ${esc(n.obs||'—')}</div>`}
+ <div>${n.conf?st('Séance confirmée')+' '+st(n.paid?'Payé':'À payer'):n.prix>0&&!viewing()?`<button class="btn sm amber" data-act="conf" data-id="${n.id}">Je confirme que la séance a eu lieu</button>`:''}</div>
+ ${avised.has(s.id)||viewing()?'':`<details><summary>Donner mon avis</summary><form data-f="avis" data-id="${s.id}" style="margin-top:10px"><div class="two"><label>Note<select name="note"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label><label>Commentaire<input name="txt"></label></div><button class="btn sm amber">Publier mon avis</button></form></details>`}
+ ${viewing()?'':`<details><summary>Signaler un problème</summary><form data-f="signal" data-id="${s.id}" style="margin-top:10px"><label>Absence, qualité, litige…<textarea name="txt" required></textarea></label><button class="btn sm red">Envoyer à l’équipe</button></form></details>`}</div>`).join('')||'<p class="empty">Les fiches de séance apparaîtront ici après chaque cours.</p>')}
+if(t=='f'){const due=myNotes.filter(n=>n.conf&&!n.paid&&n.prix>0),tot=due.reduce((a,n)=>a+n.prix,0),pend=D.pays.find(p=>p.pid==u.id&&p.st=='En attente'),unc=myNotes.filter(n=>!n.conf&&n.prix>0).length;
+ b=`<div class="card" style="margin-bottom:14px"><h3>À payer</h3><div class="price">${gnf(tot)}</div><p>${due.length} séance(s) confirmée(s) non payée(s).${unc?` ${unc} séance(s) attendent encore votre confirmation (onglet Suivi).`:''}</p>
+ ${pend?`<div class="note">Paiement de ${gnf(pend.montant)} en cours. Validez-le sur votre téléphone Soutra Money. Il sera confirmé automatiquement.<div class="acts" style="margin-top:8px"><button class="btn sm line" data-act="refresh">Actualiser</button></div></div>`:tot>0&&!viewing()?`<form data-f="pay" style="margin-top:12px"><label>Numéro Soutra Money<input name="tel" type="tel" required value="${esc(u.tel||'')}"></label><button class="btn amber">Payer ${gnf(tot)} avec Soutra Money</button></form>`:''}
+ <div class="note">Le paiement est confirmé automatiquement par Soutra Money. Ni vous ni l’équipe ne pouvez le valider à la main.</div></div>
+ <h3>Historique</h3>`+(D.pays.filter(p=>p.pid==u.id).map(p=>`<div class="item"><b>${gnf(p.montant)}</b> ${st(p.st)}<small>${esc(new Date(p.created_at).toLocaleString('fr-FR'))}${p.provider_ref?' · Réf. '+esc(p.provider_ref):''}</small></div>`).join('')||'<p class="empty">Aucun paiement.</p>')}
+if(t=='k')b=kids(u)+(viewing()?'':`<form data-f="join" class="card" style="margin-top:14px"><h3>Rejoindre un groupe</h3><p>Un autre parent vous a donné un code de groupe ?</p><div class="two"><label>Code du groupe<input name="code" required maxlength="6" style="text-transform:uppercase"></label><label>Enfant<select name="kid" required>${D.children.filter(k=>k.pid==u.id).map(k=>`<option value="${k.id}">${esc(k.prenom)}</option>`).join('')}</select></label></div><button class="btn sm amber">Rejoindre</button></form>`);
+if(t=='m')b=msgs(u);return T('parent',L)+b}
+
+// ---------- Espace répétiteur ----------
+function tutor(u){const ok=u.st=='valide',myQ=D.req.filter(r=>r.rid==u.id),ses=D.ses.filter(s=>s.rid==u.id&&s.st!='Annulée').sort((a,b)=>(a.date+a.heure).localeCompare(b.date+b.heure)),
+newQ=myQ.filter(r=>r.st=='Envoyée'),toConf=[...new Set(ses.filter(s=>s.st=='À confirmer').map(s=>s.qid+'|'+s.mois))],toFill=ses.filter(s=>s.st=='Prévue'&&s.date<=today()),chgIn=D.chg.filter(c=>c.st=='En attente'&&c.asked_by!=u.id&&ses.some(s=>s.id==c.sid)).length,
+L=ok?[['dm','Demandes'+badge(newQ.length+toConf.length)],['pl','Planning'+badge(toFill.length+chgIn)],['dv','Devoirs'],['hi','Historique'],['ms','Messages'],['pr','Mon profil']]:[['pr','Mon profil'],['ms','Messages']],t=curTab('rep',L);let b='';
+if(t=='pr')b=`<div class="item"><div>${st(RL[u.st])}</div><div>${tags(u.mat)}${tags(u.niv)}</div><small>${esc(u.quartier)} · ${esc(u.dispo)} · ${esc(u.tel)}</small><small>Carte d’étudiant : ${esc(u.docs?.ecole)}, ${esc(u.docs?.filiere)}, N° ${esc(u.docs?.num)}</small></div>`+(!u.docs?.carte&&!viewing()?`<form data-f="carte" class="card" style="margin:12px 0"><h3>Envoyez votre carte d’étudiant</h3><p>Elle est nécessaire pour valider votre profil.</p><label>Photo ou scan de la carte<input type="file" name="fcarte" accept="image/*,.pdf" required></label><button class="btn sm amber">Envoyer</button></form>`:'')+(u.rdv&&u.st!='valide'?`<div class="note"><b>Rendez-vous :</b> ${esc(fdate(u.rdv.date))} à ${esc(u.rdv.heure)} · ${esc(u.rdv.lieu)}</div>`:'')+(u.st=='attente'?'<div class="note">Votre inscription est bien reçue. L’équipe va vérifier votre carte d’étudiant puis vous donner un rendez-vous. Vous êtes en attente.</div>':u.st=='refuse'?'<div class="note">Votre profil n’a pas été retenu. Écrivez à l’équipe dans Messages.</div>':'');
+if(t=='dm')b=`<h3 style="margin:6px 0 10px">Nouvelles demandes</h3>`+(newQ.map(r=>`<div class="item"><b>${esc(kidNames(r.id))} · ${esc(qLabel(r))}</b>${r.type=='Groupe'?`<span class="tag">${D.gsize[r.id]||'?'} élève(s)</span>`:''}<div>${r.exam?'<span class="tag">CEE/BEPC</span>':''}</div><small>Parent : ${esc(U(r.pid).nom)} · ${esc(r.quartier)} · ${esc(r.dispo)}${r.budget?' · '+esc(r.budget):''}</small>${viewing()?'':`<div class="acts"><button class="btn sm amber" data-act="acc" data-id="${r.id}">Accepter</button><button class="btn sm red" data-act="ref" data-id="${r.id}">Refuser</button></div>`}</div>`).join('')||'<p class="empty">Aucune nouvelle demande.</p>')+
+ `<h3 style="margin:18px 0 10px">Plannings du mois à confirmer</h3>`+(toConf.map(k=>{const [q,m]=k.split('|'),list=ses.filter(s=>s.qid==q&&s.mois==m&&s.st=='À confirmer');return `<div class="item"><b>${esc(kidNames(q))} · ${esc(monthName(m))}</b><small>${list.length} séances proposées par le parent :</small><div>${list.map(s=>`<span class="tag">${esc(fdate(s.date))} ${esc(hm(s.heure))}</span>`).join('')}</div>${viewing()?'':`<div class="acts"><button class="btn sm amber" data-act="mok" data-id="${q}" data-m="${m}">Confirmer tout le mois</button><button class="btn sm red" data-act="mno" data-id="${q}" data-m="${m}">Refuser ce planning</button></div>`}</div>`}).join('')||'<p class="empty">Rien à confirmer.</p>');
+if(t=='pl')b=ses.filter(s=>s.st!='Réalisée').map(s=>{const ks=kidsOf(s.qid),canFill=s.st=='Prévue'&&s.date<=today()&&!viewing();
+ return `<div class="item">${sesLine(s)}<small>${esc(qLabel(Q(s.qid)))} · Parent : ${esc(U(s.pid).nom)}</small>${changeBox(s,u)}
+ ${canFill?`<details ${s.date==today()?'open':''}><summary><b>Remplir la fiche de séance</b> (une par élève)</summary><form data-f="fiche" data-id="${s.id}" style="margin-top:10px">${ks.map(e=>`<fieldset style="border:2px solid var(--line);border-radius:12px;padding:12px 14px;display:grid;gap:10px"><legend style="font-weight:700;padding:0 6px">${esc(e.prenom)}</legend><label class="chk" style="display:flex;gap:8px;align-items:center;font-weight:500"><input type="checkbox" name="p_${e.child_id}" value="1" checked>Présent(e)</label><label>Points étudiés<textarea name="n_${e.child_id}"></textarea></label><label>Niveau constaté<select name="v_${e.child_id}"><option value="">Choisir…</option><option>Insuffisant</option><option>Moyen</option><option>Bien</option><option>Très bien</option></select></label><label>Devoirs à faire<input name="d_${e.child_id}"></label><label>Conseil au parent / à l’élève<input name="o_${e.child_id}"></label></fieldset>`).join('')}<button class="btn sm amber">Enregistrer la fiche</button></form></details>`:s.st=='Prévue'?'<small>La fiche se remplit le jour de la séance.</small>':''}</div>`}).join('')||'<p class="empty">Aucune séance à venir.</p>';
+if(t=='dv'){const acc=myQ.filter(r=>r.st=='Acceptée'),opts=acc.flatMap(r=>[[r.id+':',`${kidNames(r.id)} · ${(r.mat||[]).join(', ')}${r.type=='Groupe'?' · tout le groupe':''}`],...(r.type=='Groupe'?kidsOf(r.id).map(e=>[r.id+':'+e.child_id,`   ↳ seulement ${e.prenom}`]):[])]);
+ b=(acc.length&&!viewing()?`<form data-f="task" class="card" style="margin-bottom:14px"><h3>Donner un devoir</h3><label>Pour<select name="to" required>${opts.map(([v,l])=>`<option value="${v}">${esc(l)}</option>`).join('')}</select></label><label>Titre<input name="titre" required placeholder="Ex. Exercices page 42"></label><label>Consigne<textarea name="consigne"></textarea></label><div class="two"><label>Photo ou document (facultatif)<input type="file" name="f" accept="image/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt"></label><label>À rendre pour le<input type="date" name="ech" min="${today()}"></label></div><button class="btn sm amber">Envoyer le devoir</button></form>`:acc.length?'':'<p class="empty">Vous pourrez donner des devoirs dès qu’un cours sera accepté.</p>')+
+ D.tasks.filter(x=>x.rid==u.id).map(x=>{const kk=x.child_id?kidsOf(x.qid).filter(e=>e.child_id==x.child_id):kidsOf(x.qid);return `<div class="item"><b>${esc(x.titre)}</b><small>${esc(kidNames(x.qid))}${x.echeance?' · pour le '+esc(fdate(x.echeance)):''}</small>${x.consigne?`<div>${esc(x.consigne)}</div>`:''}${x.fichier?`<div class="acts"><a class="btn sm line" target="_blank" rel="noopener" href="${esc(fileUrl(x.fichier))}">📎 ${esc(x.fichier_nom||'Fichier')}</a></div>`:''}<div>${kk.map(e=>{const d=D.done.find(z=>z.task_id==x.id&&z.child_id==e.child_id);return `<span class="tag ${d?'ok':'warn'}">${esc(e.prenom)} : ${d?'fait':'à faire'}</span>${d?.reponse?`<small> « ${esc(d.reponse)} »</small>`:''}`}).join(' ')}</div>${viewing()?'':`<div class="acts"><button class="btn sm red" data-act="deltask" data-id="${x.id}">Supprimer</button></div>`}</div>`}).join('')}
+if(t=='hi')b=ses.filter(s=>s.st=='Réalisée').reverse().map(s=>{const a=D.rep.filter(x=>x.sid==s.id&&x.kind=='avis'),ns=D.notes.filter(n=>n.sid==s.id);return `<div class="item">${sesLine(s)}<small>${ns.map(n=>esc(kidsOf(s.qid).find(e=>e.child_id==n.child_id)?.prenom)+' : '+(n.present===false?'absent':n.conf?'confirmée':'en attente du parent')).join(' · ')}</small><small>${a.length?a.map(x=>'★'.repeat(x.note)+' '+esc(x.txt)).join(' · '):'Pas encore d’avis'}</small></div>`}).join('')||'<p class="empty">Aucune séance effectuée.</p>';
+if(t=='ms')b=msgs(u);return T('rep',L)+b}
+
+// ---------- Espace admin ----------
+function admin(){const reps=D.u.filter(x=>x.role=='rep'&&x.st=='valide'),chgs=D.chg.filter(c=>c.st=='En attente'),
+L=[['c','Comptes'],['q','Cours'],['s','Séances'+badge(chgs.length)],['g','Signalements'],['y','Paiements'],['m','Messages'],['x','Paramètres']],t=curTab('admin',L);let b='';
+if(t=='c')b=D.u.filter(x=>x.role!='admin').map(x=>`<div class="item"><b>${esc(x.nom)}</b> ${st(x.role=='rep'?RL[x.st]:'Parent')}<small>${esc(x.email)} · ${esc(x.tel)} · ${esc(x.quartier)}</small>${x.role=='rep'?`<div>${tags(x.mat)}${tags(x.niv)}</div><small>${esc(x.dispo)}</small><small>Carte d’étudiant : <a class="btn sm line" data-act="carte" data-path="${esc(x.docs?.carte)}">Voir la carte</a> · ${esc(x.docs?.ecole)} · ${esc(x.docs?.filiere)} · N° ${esc(x.docs?.num)}</small>${x.rdv?`<small>Rendez-vous : ${esc(fdate(x.rdv.date))} à ${esc(x.rdv.heure)} · ${esc(x.rdv.lieu)}</small>`:''}${x.st=='attente'||x.st=='rdv'?`<form data-f="rdv" data-id="${x.id}" class="two"><label>Date<input type="date" name="date" min="${today()}" required></label><label>Heure<input type="time" name="heure" required></label><label>Lieu<input name="lieu" required></label><button class="btn sm line">${x.st=='rdv'?'Changer':'Fixer'} le rendez-vous</button></form><div class="acts">${x.st=='rdv'?`<button class="btn sm amber" data-act="val" data-id="${x.id}">Valider le profil</button>`:''}<button class="btn sm red" data-act="rej" data-id="${x.id}">Refuser</button></div>`:''}`:''}<div class="acts"><button class="btn sm line" data-act="view" data-id="${x.id}">Ouvrir son espace</button><button class="btn sm line" data-act="mkadm" data-id="${x.id}">Nommer administrateur</button></div></div>`).join('')||'<p class="empty">Aucun compte.</p>';
+if(t=='q')b=`<div class="note" style="margin:0 0 14px">Les parents choisissent directement leur répétiteur. Vous n’intervenez que si besoin : demande sans répétiteur, refus, litige.</div>`+(D.req.map(r=>`<div class="item"><b>${esc(kidNames(r.id))} · ${esc(qLabel(r))}</b> ${st(r.st)}${r.code?` <span class="tag">Code ${esc(r.code)}</span>`:''}<small>Parent : ${esc(U(r.pid).nom)} · ${esc(r.quartier)} · ${esc(r.dispo)} · Répétiteur : ${esc(r.rid?U(r.rid).nom:'—')}</small>${r.motif?`<small>Motif : ${esc(r.motif)}</small>`:''}${r.st=='Nouvelle'||r.st.startsWith('Refus')?`<form data-f="assign" data-id="${r.id}" class="two"><label>Proposer un répétiteur<select name="rid" required><option value="">Choisir…</option>${reps.map(x=>`<option value="${x.id}">${esc(x.nom)} (${esc(x.quartier)})</option>`).join('')}</select></label><button class="btn sm amber">Envoyer au répétiteur</button></form>`:''}</div>`).join('')||'<p class="empty">Aucun cours.</p>');
+if(t=='s')b=(chgs.length?`<h3 style="margin:6px 0 10px">Reports et annulations en attente</h3>`+chgs.map(c=>{const s=D.ses.find(x=>x.id==c.sid)||{};return `<div class="item">${sesLine(s)}${changeBox(s,me())}</div>`}).join(''):'')+`<h3 style="margin:18px 0 10px">Toutes les séances</h3>`+(D.ses.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(s=>`<div class="item">${sesLine(s)}<small>${esc(U(s.rid).nom)} · Parent : ${esc(U(s.pid).nom)} · Fiches : ${D.notes.filter(n=>n.sid==s.id).length}/${kidsOf(s.qid).length}</small>${['Prévue','À confirmer'].includes(s.st)&&!D.notes.some(n=>n.sid==s.id)?`<div class="acts"><button class="btn sm red" data-act="admcancel" data-id="${s.id}">Annuler (intervention)</button></div>`:''}</div>`).join('')||'<p class="empty">Aucune séance.</p>');
+if(t=='g')b=D.rep.filter(x=>x.kind=='signal').map(x=>`<div class="item"><b>Signalement</b> ${st(x.st)}<p>${esc(x.txt)}</p><small>Par ${esc(U(x.by).nom)} · séance ${x.sid}</small>${x.st=='Ouvert'?`<button class="btn sm amber" data-act="solve" data-id="${x.id}">Marquer traité</button>`:''}</div>`).join('')||'<p class="empty">Aucun signalement.</p>';
+if(t=='y')b=`<div class="note" style="margin:0 0 14px">Lecture seule. Les paiements sont validés uniquement par Soutra Money, automatiquement. Personne, même un administrateur, ne peut les valider à la main.</div>`+(D.pays.map(p=>`<div class="item"><b>${gnf(p.montant)}</b> ${st(p.st)}<small>${esc(U(p.pid).nom)} · ${esc(new Date(p.created_at).toLocaleString('fr-FR'))}${p.provider_ref?' · Réf. '+esc(p.provider_ref):''}</small></div>`).join('')||'<p class="empty">Aucun paiement.</p>');
+if(t=='x')b=`<form data-f="cfg" class="card"><div class="two"><label>Prix d’une séance individuelle (GNF)<input name="prix" type="number" min="0" value="${D.cfg.prix}" required></label><label>Séances conseillées par mois<input name="sc" type="number" min="1" value="${D.cfg.sc}" required></label></div><div class="two"><label>Tarif groupe par élève et par séance (GNF)<input name="grp" type="number" min="0" value="${D.cfg.grp}" required></label><label>Quartier pilote<input name="zone" value="${esc(D.cfg.zone)}"></label></div><div class="two"><label>Numéro WhatsApp (avec 224)<input name="wa" value="${esc(D.cfg.wa)}" required></label><label>Email de contact<input name="mail" type="email" value="${esc(D.cfg.mail)}" required></label></div><button class="btn amber">Enregistrer</button></form><div class="note">Les nouveaux tarifs s’appliquent aux séances dont la fiche est remplie après l’enregistrement.</div><div class="note">Pour ajouter un administrateur : la personne crée un compte Parent, puis cliquez sur « Nommer administrateur » dans Comptes.</div>`;
+if(t=='m')b=msgs(me());return T('admin',L)+b}
+
+// ---------- Navigation ----------
+function render(){const raw=(location.hash||'#entree').slice(1),a=me(),pub=['accueil','fonctionnement','tarifs','faq'],leg=['conditions','confidentialite'],isAuth=/^((parent|rep)-(connexion|inscription)|admin-connexion)$/.test(raw),isChild=/^eleve-[0-9a-f-]{36}$/i.test(raw);let r=raw;
+if(r=='observer'){obs=true;try{sessionStorage.setItem('obs','1')}catch(e){}r='accueil'}
+if(a){if(!(['espace','demande',...leg].includes(r)||isChild))r='espace'}else if(!(isAuth||isChild||leg.includes(r)||r=='entree'||(obs&&pub.includes(r))))r=obs?'accueil':'entree';
+if(r!=raw){try{history.replaceState(null,'','#'+r)}catch(e){}}
+$('#pub').hidden=!(obs&&!a);
+$('#navr').innerHTML=a?`<a class="btn amber sm" data-go="espace">Mon espace</a>`:`<a class="btn amber sm" data-go="entree">Se connecter</a>`;
+$('#ft').innerHTML=`Tutora + · Pilote à ${esc(D.cfg.zone)} · <a target="_blank" rel="noopener" href="${wa('Bonjour Tutora +')}">WhatsApp ${pn()}</a> · <a href="mailto:${esc(D.cfg.mail)}">${esc(D.cfg.mail)}</a> · <a data-go="conditions">Conditions</a> · <a data-go="confidentialite">Confidentialité</a>`;
+const [p,m]=r.split('-'),v={espace:space,demande:reqForm,entree:entree,conditions:()=>legal(0),confidentialite:()=>legal(1)}[r]||(isAuth?()=>auth(p,m):null)||(isChild?()=>{childLoad(r.slice(6));return '<section class="sec"><div class="wrap"><p class="lead">Chargement…</p></div></section>'}:null);
+$('#app').innerHTML=v?v():home();
+document.querySelectorAll('.tabs').forEach(t=>{const o=t.querySelector('.on');if(o)t.scrollLeft=o.offsetLeft-(t.clientWidth-o.offsetWidth)/2});
+if(['fonctionnement','tarifs','faq'].includes(r))setTimeout(()=>document.getElementById(r)?.scrollIntoView(),30)}
+const go=r=>{if(location.hash=='#'+r)render();else location.hash=r;scrollTo(0,0)};
+addEventListener('hashchange',render);
+const ok=async p=>{const r=await p;if(r.error){toast(errMsg(r.error));r.error.shown=1;throw r.error}return r};
+async function loadCfg(){try{const {data}=await SB.from('settings').select('*').eq('k','cfg');if(data&&data[0])D.cfg={...DEF,...data[0].v}}catch(e){}}
+async function load(){if(!D.me)return;const g=t=>SB.from(t).select('*'),r=await Promise.all([g('profiles'),g('requests').order('id',{ascending:false}),g('enrollments'),g('sessions'),g('notes'),g('changes').order('id'),g('tasks').order('id',{ascending:false}),g('task_done'),g('messages').order('id'),g('reports'),g('payments').order('created_at',{ascending:false}),g('children'),SB.rpc('tutors')]);
+[D.u,D.req,D.enr,D.ses,D.notes,D.chg,D.tasks,D.done,,D.rep,D.pays,D.children,D.tutors]=r.map(x=>x.data||[]);
+D.msg=(r[8].data||[]).map(m=>({id:m.id,from:m.from_id,to:m.to_id||0,ch:m.child_id,txt:m.txt,t:new Date(m.created_at).toLocaleString('fr-FR')}));
+D.gsize={};await Promise.all(D.req.filter(q=>q.type=='Groupe').map(async q=>{const {data}=await SB.rpc('group_size',{q:q.id});D.gsize[q.id]=data}));
+await loadCfg()}
+const clear=()=>{Object.assign(D,{me:null,view:null,u:[],req:[],enr:[],ses:[],notes:[],chg:[],tasks:[],done:[],msg:[],rep:[],pays:[],children:[],tutors:[]});tab={}};
+async function boot(){try{if(!SB)throw 0;await loadCfg();const {data}=await SB.auth.getSession();if(data.session){D.me=data.session.user.id;await load();if(!me()){await SB.auth.signOut();clear()}}}catch(e){toast('Connexion au serveur impossible')}render()}
+setInterval(()=>{if(D.me&&!document.hidden&&location.hash=='#espace'&&!document.activeElement?.closest('form,input,textarea,select,details[open]'))load().then(render).catch(()=>{})},30000);
+
+// Formulaire de demande : afficher le choix de groupe seulement pour un groupe
+document.addEventListener('change',e=>{const f=e.target.closest('form[data-f="req"]');if(f&&e.target.name=='type')f.querySelector('[data-grp]').hidden=e.target.value!='Groupe';
+const c=e.target.closest('form[data-f="chg"]');if(c&&e.target.name=='kind')c.querySelectorAll('input[type=date],input[type=time]').forEach(i=>i.closest('label').hidden=e.target.value=='annulation')});
+
+document.addEventListener('click',async e=>{const g=e.target.closest('[data-go]');if(g){e.preventDefault();return go(g.dataset.go)}
+const a=e.target.closest('[data-act]');if(!a)return;const id=a.dataset.id,A=a.dataset.act,q=(t,v)=>SB.from(t).update(v).eq('id',id);
+try{
+if(A=='inst'){if(ip)ip.prompt();return}
+if(A=='tab'){tab[a.dataset.r]=a.dataset.v;if(location.hash!='#espace')return go('espace')}else if(A=='ct')tab.mc=id;else if(A=='view'){D.view=id;tab={}}else if(A=='unview'){D.view=null;tab={}}
+else if(A=='pick'){tab.pick=id||null;return go('demande')}else if(A=='backTutors'){tab.parent='r';return go('espace')}
+else if(A=='logout'){await SB.auth.signOut();clear();obs=false;try{sessionStorage.removeItem('obs')}catch(e){}return go('entree')}
+else if(A=='carte'){const {data}=await SB.storage.from('cartes').createSignedUrl(a.dataset.path,300);if(data)open(data.signedUrl,'_blank');else toast('Carte introuvable');return}
+else if(A=='copy'){try{await navigator.clipboard.writeText(a.dataset.link);toast('Lien copié')}catch(e){toast('Copiez le lien manuellement')}return}else if(A=='goKids'){tab.parent='k';return go('espace')}
+else if(A=='refresh'){}
+else if(A=='acc'){await ok(SB.rpc('answer_request',{q:+id,ok:true}));toast('Cours accepté. Le parent va planifier le mois.')}
+else if(A=='ref'){const why=prompt('Motif du refus (le parent le verra) :');if(why===null)return;await ok(SB.rpc('answer_request',{q:+id,ok:false,why}));toast('Demande refusée')}
+else if(A=='mok'||A=='mno'){if(A=='mno'&&!confirm('Refuser tout ce planning ? Le parent devra en proposer un autre.'))return;const {data}=await ok(SB.rpc('confirm_month',{q:+id,m:a.dataset.m,ok:A=='mok'}));toast(A=='mok'?`${data} séances confirmées`:'Planning refusé')}
+else if(A=='chgok'||A=='chgno'){await ok(SB.rpc('answer_change',{c:+id,ok:A=='chgok'}));toast(A=='chgok'?'Changement accepté':'Changement refusé')}
+else if(A=='conf'){await ok(SB.rpc('confirm_note',{n:+id}));toast('Séance confirmée')}
+else if(A=='deltask'){if(!confirm('Supprimer ce devoir ?'))return;await ok(SB.from('tasks').delete().eq('id',id));toast('Devoir supprimé')}
+else if(A=='admcancel'){if(!confirm('Annuler cette séance en tant qu’équipe Tutora + ?'))return;await ok(q('sessions',{st:'Annulée'}));toast('Séance annulée')}
+else if(A=='val'){await ok(q('profiles',{st:'valide'}));toast('Profil validé')}else if(A=='rej'){await ok(q('profiles',{st:'refuse'}));toast('Profil refusé')}
+else if(A=='mkadm'){if(confirm('Donner les droits administrateur à ce compte ?')){await ok(q('profiles',{role:'admin'}));toast('Administrateur ajouté')}}
+else if(A=='solve'){await ok(q('reports',{st:'Traité'}))}
+await load();render()}catch(err){if(!err||!err.shown)toast('Erreur réseau, réessayez')}});
+
+document.addEventListener('submit',async e=>{const f=e.target.closest('[data-f]');if(!f)return;e.preventDefault();const b=f.querySelector('button:not([type=button])');if(b){if(b.disabled)return;b.disabled=true}
+const fd=new FormData(f),o=Object.fromEntries(fd),id=f.dataset.id,K=f.dataset.f,u=cur();['mat','niv','kids','j'].forEach(k=>o[k]=fd.getAll(k));
+try{
+if(K=='cmsg'){const {error}=await SB.rpc('child_send',{tok:CT,t:o.txt,q:+o.q||null});if(error)return toast(/répétiteur/.test(error.message)?'Tu n’as pas encore de répétiteur':'Message non envoyé');toast('Message envoyé');return childLoad(CT)}
+if(K=='tdone'){const {error}=await SB.rpc('child_task_done',{tok:CT,task:+id,rep:o.rep||''});if(error)return toast('Non enregistré, réessaie');toast('Bravo, devoir terminé !');return childLoad(CT)}
+if(K=='flt'){tab.flt={mat:o.mat?.[0]||'',niv:o.niv?.[0]||'',q:o.q};return render()}
+if(viewing()&&!['msg','assign','rdv','cfg'].includes(K))return toast('Action réservée au propriétaire du compte');
+if(K=='signup'){if(o.role=='rep'&&(!o.mat.length||!o.niv.length))return toast('Choisissez au moins une matière et un niveau');
+const meta={role:o.role,nom:o.nom,tel:o.tel,quartier:o.quartier,...(o.role=='rep'?{mat:o.mat,niv:o.niv,dispo:o.dispo,ecole:o.ecole,filiere:o.filiere,num:o.num}:{})};
+const {data,error}=await SB.auth.signUp({email:o.email,password:o.pw,options:{data:meta,emailRedirectTo:location.origin+location.pathname+'#'+o.role+'-connexion'}});if(error)return toast(/registered|exists/i.test(error.message)?'Cet email a déjà un compte':'Erreur : '+error.message);
+if(!data.session){toast(o.role=='rep'?'Compte créé : confirmez votre email, connectez-vous, puis renvoyez votre carte depuis votre profil':'Compte créé : confirmez votre email puis connectez-vous');return go(o.role+'-connexion')}
+const uid=data.user.id,P={id:uid,role:o.role,nom:o.nom,tel:o.tel,email:o.email,quartier:o.quartier,st:'attente'};
+if(o.role=='rep'){const fl=o.fcarte,ex=((fl.name||'').split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg',path=`${uid}/carte.${ex}`,up=await SB.storage.from('cartes').upload(path,fl);if(up.error)return toast('Envoi de la carte impossible : '+up.error.message);Object.assign(P,{mat:o.mat,niv:o.niv,dispo:o.dispo,docs:{carte:path,ecole:o.ecole,filiere:o.filiere,num:o.num}})}
+await ok(SB.from('profiles').insert(P));D.me=uid;obs=false;await load();toast(o.role=='rep'?'Inscription reçue : vous êtes en attente':'Compte créé');if(o.role=='parent')tab.parent='k';return go('espace')}
+if(K=='login'){const {data,error}=await SB.auth.signInWithPassword({email:o.email,password:o.pw});if(error)return toast('Email ou mot de passe incorrect');D.me=data.user.id;await load();
+if(!me()){const md=data.user.user_metadata||{};if(md.role==o.role&&['parent','rep'].includes(md.role)){const P={id:D.me,role:md.role,nom:md.nom||o.email,tel:md.tel,email:o.email,quartier:md.quartier,st:'attente'};if(md.role=='rep')Object.assign(P,{mat:md.mat||[],niv:md.niv||[],dispo:md.dispo,docs:{ecole:md.ecole,filiere:md.filiere,num:md.num}});const ins=await SB.from('profiles').insert(P);if(!ins.error){await load();if(md.role=='parent')tab.parent='k'}}}
+const m=me();if(!m||m.role!=o.role){await SB.auth.signOut();clear();return toast('Ce compte n’est pas un compte '+PORT[o.role].toLowerCase())}obs=false;return go('espace')}
+if(K=='req'){if(!o.kids.length)return toast('Choisissez le ou les enfants');if(!o.mat.length)return toast('Choisissez au moins une matière');
+ await ok(SB.rpc('create_request',{rep:o.rep||null,kids:o.kids.map(Number),typ:o.type,mode:o.type=='Groupe'?o.mode:null,mats:o.mat,quart:o.quartier,disp:o.dispo,budg:o.budget||'',ex:!!o.exam}));
+ tab.parent='c';tab.pick=null;toast(o.rep?'Demande envoyée au répétiteur':'Demande envoyée : l’équipe choisit le répétiteur');await load();return go('espace')}
+if(K=='join'){await ok(SB.rpc('join_group',{c:o.code,kid:+o.kid}));tab.parent='c';toast('Votre enfant a rejoint le groupe')}
+if(K=='plan'){if(!o.j.length)return toast('Cochez au moins un jour');const {data}=await ok(SB.rpc('plan_month',{q:+id,m:o.m,jours:o.j.map(Number),h:o.h}));toast(`${data} séances créées. Le répétiteur va confirmer le mois.`);tab.parent='p'}
+if(K=='chg'){if(o.kind=='report'&&(!o.d||!o.h))return toast('Choisissez la nouvelle date et l’heure');if(o.kind=='report'&&isPast(o.d,o.h))return toast('Choisissez une date à venir');
+ await ok(SB.rpc('ask_change',{s:+id,k:o.kind,d:o.kind=='report'?o.d:null,h:o.kind=='report'?o.h:null,why:o.why}));toast('Demande envoyée, en attente de l’accord de l’autre partie')}
+if(K=='kid'){await ok(SB.from('children').insert({pid:u.id,prenom:o.prenom,niveau:o.niveau,a_telephone:!!o.tel}));toast('Enfant ajouté')}
+if(K=='carte'){const fl=o.fcarte,ex=((fl.name||'').split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg',path=`${u.id}/carte.${ex}`,up=await SB.storage.from('cartes').upload(path,fl,{upsert:true});if(up.error)return toast('Envoi impossible : '+up.error.message);await ok(SB.rpc('set_carte',{path}));toast('Carte envoyée')}
+if(K=='assign'){await ok(SB.from('requests').update({rid:o.rid,st:'Envoyée',motif:null}).eq('id',id));toast('Proposé au répétiteur')}
+if(K=='fiche'){const ks=kidsOf(Q(D.ses.find(s=>s.id==id)?.qid).id),fiches={};for(const e of ks){const c=e.child_id,pr=!!fd.get('p_'+c);if(pr&&(!o['n_'+c]||!o['v_'+c]))return toast(`Remplissez les points étudiés et le niveau de ${e.prenom}`);fiches[c]={present:pr,notions:o['n_'+c],niveau:o['v_'+c],devoirs:o['d_'+c],obs:o['o_'+c]}}
+ await ok(SB.rpc('save_fiche',{s:+id,fiches}));toast('Fiche enregistrée')}
+if(K=='task'){const [qq,cc]=o.to.split(':');if(o.ech&&o.ech<today())return toast('La date doit être aujourd’hui ou plus tard');let path=null,nom=null;const fl=o.f;
+ if(fl&&fl.size){if(fl.size>10*1024*1024)return toast('Fichier trop lourd (10 Mo maximum)');const ex=((fl.name||'').split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'')||'bin';path=`${u.id}/${rid()}.${ex}`;nom=fl.name;const up=await SB.storage.from('devoirs').upload(path,fl);if(up.error)return toast('Envoi du fichier impossible : '+up.error.message)}
+ await ok(SB.from('tasks').insert({qid:+qq,child_id:cc?+cc:null,titre:o.titre,consigne:o.consigne||null,fichier:path,fichier_nom:nom,echeance:o.ech||null}));toast('Devoir envoyé à l’élève')}
+if(K=='pay'){const {data,error}=await SB.functions.invoke('soutra-init',{body:{tel:o.tel}});if(error){let m='Paiement indisponible pour le moment';try{m=(await error.context.json()).error||m}catch(x){}return toast(m)}
+ if(data?.redirect_url){location.href=data.redirect_url;return}toast(data?.message||'Validez le paiement sur votre téléphone')}
+if(K=='avis'){await ok(SB.from('reports').insert({sid:+id,kind:'avis',note:+o.note,txt:o.txt}));toast('Merci pour votre avis')}
+if(K=='signal'){await ok(SB.from('reports').insert({sid:+id,kind:'signal',txt:o.txt,st:'Ouvert'}));toast('Signalement envoyé à l’équipe')}
+if(K=='cfg'){D.cfg={...D.cfg,prix:+o.prix,sc:+o.sc,grp:+o.grp,zone:o.zone,wa:o.wa.replace(/\D/g,''),mail:o.mail};await ok(SB.from('settings').upsert({k:'cfg',v:D.cfg}));toast('Paramètres enregistrés')}
+if(K=='rdv'){if(o.date<today())return toast('Choisissez une date à venir');await ok(SB.from('profiles').update({rdv:{date:o.date,heure:o.heure,lieu:o.lieu},st:'rdv'}).eq('id',id));await ok(SB.from('messages').insert({to_id:id,txt:`Rendez-vous fixé le ${fdate(o.date)} à ${o.heure}, lieu : ${o.lieu}.`}));toast('Rendez-vous fixé')}
+if(K=='msg'){const to=me().role=='admin'?o.to:f.dataset.to;await ok(SB.from('messages').insert(to&&to[0]=='k'?{child_id:+to.slice(1),to_id:null,txt:o.txt}:{to_id:to&&to!='0'?to:null,txt:o.txt}));toast('Message envoyé')}
+await load();render()}catch(err){if(!err||!err.shown)toast('Erreur réseau, réessayez')}finally{if(b)b.disabled=false}});
+
+// Retour du paiement Soutra Money (?paiement=ok) : on recharge pour voir le statut
+if(/[?&]paiement=/.test(location.search)){tab.parent='f';try{history.replaceState(null,'',location.pathname+'#espace')}catch(e){}}
+boot();
+if('serviceWorker' in navigator&&/^https?:/.test(location.protocol))navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>
